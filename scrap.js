@@ -1,4 +1,3 @@
-
 // Aller récupérer le contenu de la page mise en paramètre
 // Utiliser un User-Agent custom
 // Trier les informations reçues
@@ -11,18 +10,21 @@ class Scrape {
     this.fetch = require('node-fetch');
   }
 
-  async fetchHTML(link) {
-    let response = await this.fetch(link)
+  async fetchHTMLCheerio(link) {
+    let response = await this.fetch(link);
 
-    return await response.text();
+    return await response.text().then(res => {
+      return this.cheerio.load(res);
+    });
   }
 }
 
-
 const strman = require('strman');
+const mapLimit = require('async/mapLimit');
+const cli = require('cli');
 
 const config = {
-   url: 'http://localhost/materiel_html/materiel/localhost/index.html',
+  productListUrl: 'http://zachary.pm/mnt/localhost/index.html',
 }
 
 const sanitizer = {
@@ -38,29 +40,47 @@ class MaterielNet_Laptop extends Scrape {
   constructor() {
     super();
 
-    this.fetchHTML(config.url)
-      .then(res => {
-        const $ = this.cheerio.load(res);
+    this.scrappedProducts = {};
+    this.batchSize = 3;
 
-        this.scrape($);
-      });
-
-    const urlArray = [
-      "http://localhost/materiel_html/materiel/www.materiel.net/ordinateur-portable/msi-ge62vr-7rf-479xfr-138856.html",
-    ];
-
-    urlArray.forEach(url => {
-      this.fetchHTML(url)
-        .then(res => {
-          const $ = this.cheerio.load(res);
-
-          this.scrapeSingleProduct($);
-        });
-    });
-
+    this.startScrapping();
   }
 
-  scrape(html) {
+  startScrapping() {
+    const $ = this.fetchHTMLCheerio(config.productListUrl)
+      .then($ => {
+        this.prepareScrapeProduct($);
+        this.scrapeProductList($);
+      });
+  }
+
+  async prepareScrapeProduct($) {
+    const productLinks = await this.retrieveProductLinks($);
+
+    mapLimit(productLinks, this.batchSize, (x, callback) => {
+      cli.info(`Fetching ${x}`);
+
+      this.fetchHTMLCheerio(x)
+        .then($ => {
+          this.scrapeSingleProduct($);
+          callback();
+        });
+    }, () => {
+      cli.ok('Finished retrieving all pages. Congratz Mr. Robot!');
+    });
+  }
+
+  retrieveProductLinks($) {
+    let links = [];
+
+    $('.Desc td > a').each((index, el) => {
+      links.push($(el).attr('href'));
+    });
+
+    return links;
+  }
+
+  scrapeProductList(html) {
     const data = this.scrapeIt.scrapeHTML(html, {
       products: {
         listItem: '.ProdListL1',
@@ -82,12 +102,17 @@ class MaterielNet_Laptop extends Scrape {
           technicalDetails: {
             selector: '.Carac',
             convert: this.scrapeTechnicalDetails
+          },
+          promotionnalText: {
+            selector: '.Desc .prixReduit'
+          },
+          productLink: {
+            selector: '.Desc td > a',
+            attr: 'href'
           }
         },
       }
     });
-
-    // console.log(data.products[0]);
   }
 
   scrapeSingleProduct(html){
@@ -396,20 +421,6 @@ class MaterielNet_Laptop extends Scrape {
       if (field == content[0]) {
         return content[1];
       }
-    }
-  }
-
-  scrapeTechnicalDetails(x) {
-    const data = x.split(', ');
-
-    return {
-      screenSize: data[0],
-      cpu: data[1],
-      ram: data[2],
-      gpu: data[3],
-      hardDrive: data[4],
-      os: data[5],
-      weight: data[6]
     }
   }
 }
