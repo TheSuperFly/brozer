@@ -3,51 +3,23 @@
 // Trier les informations reçues
 // (Optionnal) Les stocker en JSON dans /data
 
-class Scrape {
-  constructor() {
-    this.scrapeIt = require('scrape-it');
-    this.cheerio = require('cheerio');
-    this.fetch = require('node-fetch');
-  }
-
-  async fetchHTMLCheerio(link) {
-    let response = await this.fetch(link);
-
-    return await response.text().then(res => {
-      return this.cheerio.load(res);
-    });
-  }
-}
-
+const Scrape = require('./class/Scrape');
+const sanitizer = require('./utils/SanitizerUtil');
 const strman = require('strman');
 const mapLimit = require('async/mapLimit');
-const cli = require('cli');
-
-const config = {
-  productListUrl: 'http://zachary.pm/mnt/localhost/index.html',
-}
-
-const sanitizer = {
-  removeRight: (source, needle) => {
-    return source.substring(null, source.indexOf(needle));
-  },
-  deviseToFloat: price => {
-    return parseFloat(price.replace(',', '.').replace(' ', ''));
-  }
-}
 
 class MaterielNet_Laptop extends Scrape {
-  constructor() {
+  constructor(url) {
     super();
 
     this.scrappedProducts = {};
     this.batchSize = 3;
 
-    this.startScrapping();
+    this.startScrapping(url);
   }
 
-  startScrapping() {
-    const $ = this.fetchHTMLCheerio(config.productListUrl)
+  startScrapping(url) {
+    const $ = this.fetchHTMLCheerio(url)
       .then($ => {
         this.prepareScrapeProduct($);
         this.scrapeProductList($);
@@ -57,27 +29,17 @@ class MaterielNet_Laptop extends Scrape {
   async prepareScrapeProduct($) {
     const productLinks = await this.retrieveProductLinks($);
 
-    mapLimit(productLinks, this.batchSize, (x, callback) => {
-      cli.info(`Fetching ${x}`);
+    mapLimit(productLinks, this.batchSize, (url, callback) => {
+      this.notifyFetching(url);
 
-      this.fetchHTMLCheerio(x)
+      this.fetchHTMLCheerio(url)
         .then($ => {
           this.scrapeSingleProduct($);
           callback();
         });
     }, () => {
-      cli.ok('Finished retrieving all pages. Congratz Mr. Robot!');
+      this.notifyFetchingDone();
     });
-  }
-
-  retrieveProductLinks($) {
-    let links = [];
-
-    $('.Desc td > a').each((index, el) => {
-      links.push($(el).attr('href'));
-    });
-
-    return links;
   }
 
   scrapeProductList(html) {
@@ -115,7 +77,7 @@ class MaterielNet_Laptop extends Scrape {
     });
   }
 
-  scrapeSingleProduct(html){
+  scrapeSingleProduct(html) {
     const self = this;
     const data = this.scrapeIt.scrapeHTML(html, {
       product: {
@@ -360,8 +322,18 @@ class MaterielNet_Laptop extends Scrape {
       },
     });
 
-    console.log(data);
+    this.notifyScrappingDone(data);
   };
+
+  retrieveProductLinks($) {
+    let links = [];
+
+    $('.Desc td > a').each((index, el) => {
+      links.push($(el).attr('href'));
+    });
+
+    return links;
+  }
 
   getTDsFromChildren(children) {
     let newChildren = [];
@@ -387,7 +359,7 @@ class MaterielNet_Laptop extends Scrape {
     return children.reduce((result, child) => {
       if ('text' == child.type) {
         if (self.isUselessTextTag(child)) {
-          return result;    
+          return result;
         }
 
         result.push(strman.collapseWhitespace(child.data));
@@ -425,4 +397,4 @@ class MaterielNet_Laptop extends Scrape {
   }
 }
 
-new MaterielNet_Laptop();
+module.exports = MaterielNet_Laptop;
