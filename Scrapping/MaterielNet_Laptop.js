@@ -1,66 +1,46 @@
-
 // Aller récupérer le contenu de la page mise en paramètre
 // Utiliser un User-Agent custom
 // Trier les informations reçues
 // (Optionnal) Les stocker en JSON dans /data
 
-class Scrape {
-  constructor() {
-    this.scrapeIt = require('scrape-it');
-    this.cheerio = require('cheerio');
-    this.fetch = require('node-fetch');
-  }
-
-  async fetchHTML(link) {
-    let response = await this.fetch(link)
-
-    return await response.text();
-  }
-}
-
-
+const Scrape = require('./class/Scrape');
+const sanitizer = require('./utils/SanitizerUtil');
 const strman = require('strman');
-
-const config = {
-   url: 'http://localhost/materiel_html/materiel/localhost/index.html',
-}
-
-const sanitizer = {
-  removeRight: (source, needle) => {
-    return source.substring(null, source.indexOf(needle));
-  },
-  deviseToFloat: price => {
-    return parseFloat(price.replace(',', '.').replace(' ', ''));
-  }
-}
+const mapLimit = require('async/mapLimit');
 
 class MaterielNet_Laptop extends Scrape {
-  constructor() {
+  constructor(url) {
     super();
 
-    this.fetchHTML(config.url)
-      .then(res => {
-        const $ = this.cheerio.load(res);
+    this.scrappedProducts = {};
+    this.batchSize = 3;
 
-        this.scrape($);
-      });
-
-    const urlArray = [
-      "http://localhost/materiel_html/materiel/www.materiel.net/ordinateur-portable/msi-ge62vr-7rf-479xfr-138856.html",
-    ];
-
-    urlArray.forEach(url => {
-      this.fetchHTML(url)
-        .then(res => {
-          const $ = this.cheerio.load(res);
-
-          this.scrapeSingleProduct($);
-        });
-    });
-
+    this.startScrapping(url);
   }
 
-  scrape(html) {
+  startScrapping(url) {
+    const $ = this.fetchHTMLCheerio(url)
+      .then($ => {
+        this.prepareScrapeProduct($);
+        this.scrapeProductList($);
+      });
+  }
+
+  async prepareScrapeProduct($) {
+    const productLinks = await this.retrieveProductLinks($);
+
+    mapLimit(productLinks, this.batchSize, (url, callback) => {
+      this.fetchHTMLCheerio(url)
+        .then($ => {
+          this.scrapeSingleProduct($);
+          callback();
+        });
+    }, () => {
+      this.notifyFetchingDone();
+    });
+  }
+
+  scrapeProductList(html) {
     const data = this.scrapeIt.scrapeHTML(html, {
       products: {
         listItem: '.ProdListL1',
@@ -82,15 +62,20 @@ class MaterielNet_Laptop extends Scrape {
           technicalDetails: {
             selector: '.Carac',
             convert: this.scrapeTechnicalDetails
+          },
+          promotionnalText: {
+            selector: '.Desc .prixReduit'
+          },
+          productLink: {
+            selector: '.Desc td > a',
+            attr: 'href'
           }
         },
       }
     });
-
-    // console.log(data.products[0]);
   }
 
-  scrapeSingleProduct(html){
+  scrapeSingleProduct(html) {
     const self = this;
     const data = this.scrapeIt.scrapeHTML(html, {
       product: {
@@ -335,8 +320,18 @@ class MaterielNet_Laptop extends Scrape {
       },
     });
 
-    console.log(data);
+    this.notifyScrappingDone(data);
   };
+
+  retrieveProductLinks($) {
+    let links = [];
+
+    $('.Desc td > a').each((index, el) => {
+      links.push($(el).attr('href'));
+    });
+
+    return links;
+  }
 
   getTDsFromChildren(children) {
     let newChildren = [];
@@ -362,7 +357,7 @@ class MaterielNet_Laptop extends Scrape {
     return children.reduce((result, child) => {
       if ('text' == child.type) {
         if (self.isUselessTextTag(child)) {
-          return result;    
+          return result;
         }
 
         result.push(strman.collapseWhitespace(child.data));
@@ -398,20 +393,6 @@ class MaterielNet_Laptop extends Scrape {
       }
     }
   }
-
-  scrapeTechnicalDetails(x) {
-    const data = x.split(', ');
-
-    return {
-      screenSize: data[0],
-      cpu: data[1],
-      ram: data[2],
-      gpu: data[3],
-      hardDrive: data[4],
-      os: data[5],
-      weight: data[6]
-    }
-  }
 }
 
-new MaterielNet_Laptop();
+module.exports = MaterielNet_Laptop;
