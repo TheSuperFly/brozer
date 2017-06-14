@@ -2,12 +2,14 @@
   "name": "yours",
   "version": "0.1.0",
   "description": "Products that fits your needs.",
-  "main": "index.js",
+  "main": "app/index.js",
   "license": "MIT",
   "dependencies": {
     "async": "^2.4.1",
     "cheerio": "^1.0.0-rc.1",
     "cli": "^1.0.1",
+    "express": "^4.15.3",
+    "mongoose": "^4.10.6",
     "node-fetch": "^1.7.1",
     "scrape-it": "^3.3.2",
     "strman": "^2.0.0"
