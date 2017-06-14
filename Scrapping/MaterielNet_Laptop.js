@@ -30,8 +30,6 @@ class MaterielNet_Laptop extends Scrape {
     const productLinks = await this.retrieveProductLinks($);
 
     mapLimit(productLinks, this.batchSize, (url, callback) => {
-      this.notifyFetching(url);
-
       this.fetchHTMLCheerio(url)
         .then($ => {
           this.scrapeSingleProduct($);

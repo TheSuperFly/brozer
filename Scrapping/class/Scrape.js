@@ -1,6 +1,6 @@
 // X Aller récupérer le contenu de la page mise en paramètre
-// Utiliser un User-Agent custom
 // X Trier les informations reçues
+// Utiliser un User-Agent custom
 const cli = require('cli');
 
 class Scrape {
@@ -13,6 +13,8 @@ class Scrape {
   }
 
   async fetchHTMLCheerio(link) {
+    this.notifyFetching(link);
+
     let response = await this.fetch(link);
 
     return await response.text().then(res => {
@@ -25,10 +27,12 @@ class Scrape {
   }
 
   notifyFetchingDone() {
-    cli.ok('Finished retrieving all pages. Congratz Mr. Robot!');
+    cli.ok('Finished retrieving all pages.');
   }
 
   notifyScrappingDone(data) {
+    cli.ok('Scrapping done. Congratz Mr. Robot!');
+
     this.scrapeResult.push(data);
   }
 }
