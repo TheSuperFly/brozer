@@ -24,7 +24,6 @@ class MaterielNet_Laptop extends Scrape {
     const $ = this.fetchHTMLCheerio(url)
       .then($ => {
         this.prepareScrapeProduct($);
-        this.scrapeProductList($);
       });
   }
 
@@ -47,112 +46,70 @@ class MaterielNet_Laptop extends Scrape {
     });
   }
 
-  scrapeProductList(html) {
-    const data = this.scrapeIt.scrapeHTML(html, {
-      products: {
-        listItem: '.ProdListL1',
-        data: {
-          brand: {
-            selector: '.Desc .brand'
-          },
-          name: {
-            selector: '.Desc .nomProduit',
-            convert: x => strman.collapseWhitespace(sanitizer.removeRight(x, ' - '))
-          },
-          price: {
-            selector: '.Price .prix',
-            convert: x => sanitizer.deviseToFloat(x),
-          },
-          specialPrice: {
-            selector: '.Desc .prixReduit'
-          },
-          technicalDetails: {
-            selector: '.Carac',
-            convert: this.scrapeTechnicalDetails
-          },
-          promotionnalText: {
-            selector: '.Desc .prixReduit'
-          },
-          productLink: {
-            selector: '.Desc td > a',
-            attr: 'href'
-          }
-        },
-      }
-    });
-  }
-
-  preScrapeSingleProduct(html) {
-    const TRs = html('#ProdSectionDesc').find('tr');
-
-    this.getMainSpecs(html);
-    this.getSpecTableContent(TRs);
-  }
-
   scrapeSingleProduct(html) {
-    this.preScrapeSingleProduct(html); 
+    this._preScrapeSingleProduct(html);
 
     const data = {
-      price: this.getSpecificFieldValueFromTRs('price', MaterielNet_Laptop.MAIN_SPECS_PREFIX()),
-      brand: this.getSpecificFieldValueFromTRs('brand', MaterielNet_Laptop.MAIN_SPECS_PREFIX()),
-      name: this.getSpecificFieldValueFromTRs('name', MaterielNet_Laptop.MAIN_SPECS_PREFIX()),
-      promotion_percent: this.getSpecificFieldValueFromTRs('promotion_percent', MaterielNet_Laptop.MAIN_SPECS_PREFIX()),
-      promotion_value: this.getSpecificFieldValueFromTRs('promotion_value', MaterielNet_Laptop.MAIN_SPECS_PREFIX()),
-      special_operation: this.getSpecificFieldValueFromTRs('special_operation', MaterielNet_Laptop.MAIN_SPECS_PREFIX()),
+      price: this._getSpecificFieldValueFromTRs('price', MaterielNet_Laptop.MAIN_SPECS_PREFIX()),
+      brand: this._getSpecificFieldValueFromTRs('brand', MaterielNet_Laptop.MAIN_SPECS_PREFIX()),
+      name: this._getSpecificFieldValueFromTRs('name', MaterielNet_Laptop.MAIN_SPECS_PREFIX()),
+      promotion_percent: this._getSpecificFieldValueFromTRs('promotion_percent', MaterielNet_Laptop.MAIN_SPECS_PREFIX()),
+      promotion_value: this._getSpecificFieldValueFromTRs('promotion_value', MaterielNet_Laptop.MAIN_SPECS_PREFIX()),
+      special_operation: this._getSpecificFieldValueFromTRs('special_operation', MaterielNet_Laptop.MAIN_SPECS_PREFIX()),
 
-      processor: this.getSpecificFieldValueFromTRs('Modèle', 'PROCESSEUR ET CHIPSET'),
-      core_nb: this.getSpecificFieldValueFromTRs('Nombre de curs', 'PROCESSEUR ET CHIPSET'),
-      frequency: this.getSpecificFieldValueFromTRs('Fréquence réelle', 'PROCESSEUR ET CHIPSET'),
-      turbo_mode: this.getSpecificFieldValueFromTRs('Mode Turbo', 'PROCESSEUR ET CHIPSET'),
+      processor: this._getSpecificFieldValueFromTRs('Modèle', 'PROCESSEUR ET CHIPSET'),
+      core_nb: this._getSpecificFieldValueFromTRs('Nombre de curs', 'PROCESSEUR ET CHIPSET'),
+      frequency: this._getSpecificFieldValueFromTRs('Fréquence réelle', 'PROCESSEUR ET CHIPSET'),
+      turbo_mode: this._getSpecificFieldValueFromTRs('Mode Turbo', 'PROCESSEUR ET CHIPSET'),
 
-      ram: this.getSpecificFieldValueFromTRs('Capacité mémoire', 'MÉMOIRE'),
-      ram_bars_number: this.getSpecificFieldValueFromTRs('Barrette(s) installée(s)', 'MÉMOIRE'),
-      ram_bars_still_free: this.getSpecificFieldValueFromTRs('Emplacement(s) libre(s) disponible(s)', 'MÉMOIRE'),
-      ram_type: this.getSpecificFieldValueFromTRs('Type', 'MÉMOIRE'),
-      ram_frequency: this.getSpecificFieldValueFromTRs('Fréquence', 'MÉMOIRE'),
-      ram_maximum: this.getSpecificFieldValueFromTRs('Maximum', 'MÉMOIRE'),
+      ram: this._getSpecificFieldValueFromTRs('Capacité mémoire', 'MÉMOIRE'),
+      ram_bars_number: this._getSpecificFieldValueFromTRs('Barrette(s) installée(s)', 'MÉMOIRE'),
+      ram_bars_still_free: this._getSpecificFieldValueFromTRs('Emplacement(s) libre(s) disponible(s)', 'MÉMOIRE'),
+      ram_type: this._getSpecificFieldValueFromTRs('Type', 'MÉMOIRE'),
+      ram_frequency: this._getSpecificFieldValueFromTRs('Fréquence', 'MÉMOIRE'),
+      ram_maximum: this._getSpecificFieldValueFromTRs('Maximum', 'MÉMOIRE'),
 
-      screen_size: this.getSpecificFieldValueFromTRs('Écran', 'AFFICHAGE'),
-      touch_screen: this.getSpecificFieldValueFromTRs('Tactile', 'AFFICHAGE'),
-      screen_resolution: this.getSpecificFieldValueFromTRs('Résolution', 'AFFICHAGE'),
-      screen_type: this.getSpecificFieldValueFromTRs('Dalle', 'AFFICHAGE'),
-      screen_aspect: this.getSpecificFieldValueFromTRs('Aspect de la dalle', 'AFFICHAGE'),
-      graphic_card_chipset: this.getSpecificFieldValueFromTRs('Carte graphique', 'AFFICHAGE'),
-      graphic_memory_type: this.getSpecificFieldValueFromTRs('Type GDDR', 'AFFICHAGE'),
-      graphic_max_memory: this.getSpecificFieldValueFromTRs('Mémoire totale', 'AFFICHAGE'),
+      screen_size: this._getSpecificFieldValueFromTRs('Écran', 'AFFICHAGE'),
+      touch_screen: this._getSpecificFieldValueFromTRs('Tactile', 'AFFICHAGE'),
+      screen_resolution: this._getSpecificFieldValueFromTRs('Résolution', 'AFFICHAGE'),
+      screen_type: this._getSpecificFieldValueFromTRs('Dalle', 'AFFICHAGE'),
+      screen_aspect: this._getSpecificFieldValueFromTRs('Aspect de la dalle', 'AFFICHAGE'),
+      graphic_card_chipset: this._getSpecificFieldValueFromTRs('Carte graphique', 'AFFICHAGE'),
+      graphic_memory_type: this._getSpecificFieldValueFromTRs('Type GDDR', 'AFFICHAGE'),
+      graphic_max_memory: this._getSpecificFieldValueFromTRs('Mémoire totale', 'AFFICHAGE'),
 
-      storage_capacity: this.getSpecificFieldValueFromTRs('Espace disque total', 'STOCKAGE'),
-      storage_unit_amount: this.getSpecificFieldValueFromTRs('Nombre d\'unité de stockage', 'STOCKAGE'),
-      storage_type: this.getSpecificFieldValueFromTRs('Type Stockage', 'STOCKAGE'),
+      storage_capacity: this._getSpecificFieldValueFromTRs('Espace disque total', 'STOCKAGE'),
+      storage_unit_amount: this._getSpecificFieldValueFromTRs('Nombre d\'unité de stockage', 'STOCKAGE'),
+      storage_type: this._getSpecificFieldValueFromTRs('Type Stockage', 'STOCKAGE'),
 
-      optical_disc_drive: this.getSpecificFieldValueFromTRs('Lecteur optique', 'STOCKAGE OPTIQUE'),
+      optical_disc_drive: this._getSpecificFieldValueFromTRs('Lecteur optique', 'STOCKAGE OPTIQUE'),
 
-      keyboard: this.getSpecificFieldValueFromTRs('Clavier', 'PÉRIPHÉRIQUES INTÉGRÉS'),
-      memory_card_reader: this.getSpecificFieldValueFromTRs('Lecteur carte(s) mémoire(s)', 'PÉRIPHÉRIQUES INTÉGRÉS'),
-      bluetooth: this.getSpecificFieldValueFromTRs('Bluetooth', 'PÉRIPHÉRIQUES INTÉGRÉS'),
-      touchpad: this.getSpecificFieldValueFromTRs('Touchpad', 'PÉRIPHÉRIQUES INTÉGRÉS'),
-      numpad: this.getSpecificFieldValueFromTRs('Pavé numérique', 'PÉRIPHÉRIQUES INTÉGRÉS'),
-      webcam: this.getSpecificFieldValueFromTRs('Webcam', 'PÉRIPHÉRIQUES INTÉGRÉS'),
+      keyboard: this._getSpecificFieldValueFromTRs('Clavier', 'PÉRIPHÉRIQUES INTÉGRÉS'),
+      memory_card_reader: this._getSpecificFieldValueFromTRs('Lecteur carte(s) mémoire(s)', 'PÉRIPHÉRIQUES INTÉGRÉS'),
+      bluetooth: this._getSpecificFieldValueFromTRs('Bluetooth', 'PÉRIPHÉRIQUES INTÉGRÉS'),
+      touchpad: this._getSpecificFieldValueFromTRs('Touchpad', 'PÉRIPHÉRIQUES INTÉGRÉS'),
+      numpad: this._getSpecificFieldValueFromTRs('Pavé numérique', 'PÉRIPHÉRIQUES INTÉGRÉS'),
+      webcam: this._getSpecificFieldValueFromTRs('Webcam', 'PÉRIPHÉRIQUES INTÉGRÉS'),
 
-      usb_ports: this.getSpecificFieldValueFromTRs('USB', 'CONNECTIQUE'),
-      hdmi_port: this.getSpecificFieldValueFromTRs('HDMI', 'CONNECTIQUE'),
-      displayport_port: this.getSpecificFieldValueFromTRs('DisplayPort', 'CONNECTIQUE'),
-      rj45_port: this.getSpecificFieldValueFromTRs('RJ 45', 'CONNECTIQUE'),
+      usb_ports: this._getSpecificFieldValueFromTRs('USB', 'CONNECTIQUE'),
+      hdmi_port: this._getSpecificFieldValueFromTRs('HDMI', 'CONNECTIQUE'),
+      displayport_port: this._getSpecificFieldValueFromTRs('DisplayPort', 'CONNECTIQUE'),
+      rj45_port: this._getSpecificFieldValueFromTRs('RJ 45', 'CONNECTIQUE'),
 
-      battery_type: this.getSpecificFieldValueFromTRs('Type', 'BATTERIE'),
-      battery_capacity: this.getSpecificFieldValueFromTRs('Capacité', 'BATTERIE'),
-      battery_approximate_autonomy: this.getSpecificFieldValueFromTRs('Autonomie approx.', 'BATTERIE'),
+      battery_type: this._getSpecificFieldValueFromTRs('Type', 'BATTERIE'),
+      battery_capacity: this._getSpecificFieldValueFromTRs('Capacité', 'BATTERIE'),
+      battery_approximate_autonomy: this._getSpecificFieldValueFromTRs('Autonomie approx.', 'BATTERIE'),
 
-      case_material: this.getSpecificFieldValueFromTRs('Matière', 'BOÎTIER'),
-      case_main_color: this.getSpecificFieldValueFromTRs('Couleur dominante', 'BOÎTIER'),
-      case_size: this.getSpecificFieldValueFromTRs('Dimensions', 'BOÎTIER'),
-      weight: this.getSpecificFieldValueFromTRs('Poids en Kg', 'BOÎTIER'),
+      case_material: this._getSpecificFieldValueFromTRs('Matière', 'BOÎTIER'),
+      case_main_color: this._getSpecificFieldValueFromTRs('Couleur dominante', 'BOÎTIER'),
+      case_size: this._getSpecificFieldValueFromTRs('Dimensions', 'BOÎTIER'),
+      weight: this._getSpecificFieldValueFromTRs('Poids en Kg', 'BOÎTIER'),
 
-      OS: this.getSpecificFieldValueFromTRs('Version système d\'exploitation', 'LOGICIELS'),
+      OS: this._getSpecificFieldValueFromTRs('Version système d\'exploitation', 'LOGICIELS'),
 
-      warranty: this.getSpecificFieldValueFromTRs('Garantie (hors accessoires)', 'GARANTIE'),
+      warranty: this._getSpecificFieldValueFromTRs('Garantie (hors accessoires)', 'GARANTIE'),
 
-      recommended_usage: this.getSpecificFieldValueFromTRs('Utilisation recommandée', 'USAGE'),
+      recommended_usage: this._getSpecificFieldValueFromTRs('Utilisation recommandée', 'USAGE'),
     };
 
     this.notifyScrappingDone(data);
@@ -170,42 +127,54 @@ class MaterielNet_Laptop extends Scrape {
 
   /**
    * 
-   * @param {Object[]} TRChildren 
+   * @param {String[]} TRs 
    * 
-   * @returns {Object[]} newChildren
-   * 
-   * Get all TDs from a TR, avoiding to keep Sections for instance
+   * Get the content of the Spec table.
    */
-  getTDsFromChildren(TRChildren) {
-    let newChildren = [];
-    for (var i = 0; i < TRChildren.length; i++) {
-      if ('td' != TRChildren[i].name) {
-        continue;
-      }
-      const child = TRChildren[i];
-      const attributes = child.attribs;
+  getSpecTableContent(TRs) {
+    for (var i = 0; i < TRs.length; i++) {
+      let TDs = this._getTDsFromChildren(TRs[i].children);
 
-      if ('ProdSection' === attributes['class']) {
-        this.section = strman.slugify(child.children[2].children[0].data);
+      TDs = this._sanitizeTDsList(TDs);
+
+      if (0 >= TDs.length) {
         continue;
       }
 
-      newChildren.push(this.getTDContent(child.children).toString());
+      // Let's add the section to the couple
+      this._pushToCurrentTDsList(TDs[0], TDs[1]);
     }
+  }
 
-    return newChildren;
+  /**
+   * 
+   * @param {Cheerio} html 
+   * 
+   * Get all the page informations in once, 
+   * then the scrapping step won't have to parse the whole document every field.
+   * 
+   * Because we love the planet <3
+   */
+  _preScrapeSingleProduct(html) {
+    const TRs = html('#ProdSectionDesc').find('tr');
+
+    this.getMainSpecs(html);
+    this.getSpecTableContent(TRs);
   }
 
   /**
    * 
    * @param {Object[]} children 
+   * 
+   * Returns the HTML tag's value no matter if it's a text or a <b>.
+   * Could be enhanced to support more tags
    */
-  getTDContent(children) {
+  _getTDContent(children) {
     const self = this;
     return children.reduce((result, child) => {
       if ('text' == child.type) {
-        if (this.isUselessTextTag(child)) {
-          return result;    
+        if (this._isUselessTextTag(child)) {
+          return result;
         }
 
         result = strman.collapseWhitespace(child.data);
@@ -219,20 +188,15 @@ class MaterielNet_Laptop extends Scrape {
 
   /**
    * 
-   * @param {Object} tag 
+   * @param {String} field 
+   * @param {String} parent 
    * 
-   * Tell if a tag (<h1>...</h1>, <b>...</b>) is useless or not.
-   * Sometime a tag is only a useless "\n" so we want to avoir do keep it.
+   * In one hand we have a bunch of data previously extracted from the page.
+   * In the other hand, we have a cute tinny field we wan't to retrieve data from.
+   * 
+   * This function does magic and give you this precious data.
    */
-  isUselessTextTag(tag) {
-    if (null != tag.next || null != tag.prev) {
-      return true;
-    }
-
-    return false;
-  }
-
-  getSpecificFieldValueFromTRs(field, parent) {
+  _getSpecificFieldValueFromTRs(field, parent) {
     const normalizedField = strman.slugify(field);
     const normalizedParent = strman.slugify(parent);
 
@@ -241,25 +205,55 @@ class MaterielNet_Laptop extends Scrape {
 
   /**
    * 
-   * @param {String[]} TRs 
+   * @param {Object} tag 
    * 
-   * Get the content of the Spec table.
+   * Tell if a tag (<h1>...</h1>, <b>...</b>) is useless or not.
+   * Sometime a tag is only a useless "\n" so we want to avoir do keep it.
    */
-  getSpecTableContent(TRs) {
-    for (var i = 0; i < TRs.length; i++) {
-      let TDs = this.getTDsFromChildren(TRs[i].children);
+  _isUselessTextTag(tag) {
+    if (null != tag.next || null != tag.prev) {
+      return true;
+    }
 
-      TDs = this.sanitizeTDsList(TDs);
+    return false;
+  }
 
-      if (0 >= TDs.length) {
+  /**
+   * 
+   * @param {Object[]} TRChildren 
+   * 
+   * @returns {Object[]} newChildren
+   * 
+   * Get all TDs from a TR, avoiding to keep Sections for instance
+   */
+  _getTDsFromChildren(TRChildren) {
+    let newChildren = [];
+    for (var i = 0; i < TRChildren.length; i++) {
+      if ('td' != TRChildren[i].name) {
+        continue;
+      }
+      const child = TRChildren[i];
+      const attributes = child.attribs;
+
+      if ('ProdSection' === attributes['class']) {
+        this.section = strman.slugify(child.children[2].children[0].data);
         continue;
       }
 
-      // Let's add the section to the couple
-      this._pushToCurrentTDsList(TDs[0], TDs[1]);
+      newChildren.push(this._getTDContent(child.children).toString());
     }
+
+    return newChildren;
   }
 
+  /**
+   * 
+   * @param {String} key 
+   * @param {String} value 
+   * 
+   * Push an entry with `parent_key: value` in the class variable we use to 
+   * cache the specs data.
+   */
   _pushToCurrentTDsList(key, value) {
     this.currentTDsList[key.toString()] = value.toString();
   }
@@ -292,7 +286,7 @@ class MaterielNet_Laptop extends Scrape {
           promotion_value: {
             selector: '.cartouche-produit #PresImg #vignettes .conversion',
             convert: x => sanitizer.removeLeft(
-              x.toString().replace('€', ''), 
+              x.toString().replace('€', ''),
               '-'
             ).trim(),
           },
@@ -304,7 +298,7 @@ class MaterielNet_Laptop extends Scrape {
     });
 
     Object.keys(data.mainSpecs[0]).forEach(x => {
-      this._pushToCurrentTDsList(MaterielNet_Laptop.MAIN_SPECS_PREFIX() +'_' + x, data.mainSpecs[0][x]);
+      this._pushToCurrentTDsList(MaterielNet_Laptop.MAIN_SPECS_PREFIX() + '_' + x, data.mainSpecs[0][x]);
     });
   }
 
@@ -314,26 +308,12 @@ class MaterielNet_Laptop extends Scrape {
    * 
    * Add the section name to the key name after slugyfication.
    */
-  sanitizeTDsList(TDs) {
+  _sanitizeTDsList(TDs) {
     if (0 < TDs.length) {
       TDs[0] = (strman.slugify(this.section) + '_' + strman.slugify(TDs[0]));
     }
 
     return TDs;
-  }
-
-  scrapeTechnicalDetails(x) {
-    const data = x.split(', ');
-
-    return {
-      screenSize: data[0],
-      cpu: data[1],
-      ram: data[2],
-      gpu: data[3],
-      hardDrive: data[4],
-      os: data[5],
-      weight: data[6]
-    }
   }
 }
 
