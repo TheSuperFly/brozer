@@ -4,8 +4,8 @@ const mapLimit = require('async/mapLimit');
 const gpuAttribute = require('./types/gpuAttribute');
 
 class NotebookCheck_FPS extends Scrape {
-  constructor(url) {
-    super();
+  constructor(url, callback) {
+    super(callback);
 
     this.gameList = [];
     this.qualityList = [];

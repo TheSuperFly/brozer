@@ -9,7 +9,7 @@
       "type": "node",
       "request": "launch",
       "name": "Debug Product Scrapping",
-      "program": "${workspaceRoot}/Scrapping/index.js",
+      "program": "${workspaceRoot}/scripts/scrape.js",
       "args": [
         "-p"
       ]
@@ -18,7 +18,7 @@
       "type": "node",
       "request": "launch",
       "name": "Debug Source Scrapping",
-      "program": "${workspaceRoot}/Scrapping/index.js",
+      "program": "${workspaceRoot}/scripts/scrape.js",
       "args": [
         "-s"
       ]
