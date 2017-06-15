@@ -1,9 +1,9 @@
-const Question = require('../../../services/Question/class/Question');
+const QuestionModel = require('../../../services/Question/class/model');
 
 let QuestionHandler = {};
 
 QuestionHandler.getQuestions = (req, res) => {
-  const questions = Question.getAllQuestions();
+  const questions = QuestionModel.getAllQuestions();
 
   res.render('Questions/index', {
     questions

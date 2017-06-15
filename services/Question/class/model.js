@@ -1,4 +1,4 @@
-class Question {
+class QuestionModel {
   static getAllQuestions() {
     return [
       'foo', 'bar', 'trottoir'
@@ -6,4 +6,4 @@ class Question {
   }  
 }
 
-module.exports = Question;
+module.exports = QuestionModel;
