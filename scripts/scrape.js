@@ -1,6 +1,6 @@
 #!/bin/node
 const cli = require('cli');
-const ScrapeDispatcher = require('../Scrapping');
+const ScrapeDispatcher = require('../services/Scrapping');
 
 cli.parse({
   product: ['p', 'Scrape product', true, false],

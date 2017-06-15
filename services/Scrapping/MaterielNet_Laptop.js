@@ -31,11 +31,21 @@ class MaterielNet_Laptop extends Scrape {
   }
 
   async prepareScrapeProduct($) {
-    const productLinks = await this.retrieveProductLinks($);
+    /**
+     *  _________________________________________ 
+     *  / WATCH OUT. I used this to avoid waiting \
+     *  \ so long for data.                       /
+     *   ----------------------------------------- 
+     *         \   ^__^
+     *          \  (oo)\_______
+     *             (__)\       )\/\
+     *                 ||----w |
+     *                 ||     ||
+     *   https://github.com/TheSuperFly/yours/issues/11
+     */
+    const productLinks = await this.retrieveProductLinks($).slice(0, 10);
 
     mapLimit(productLinks, this.batchSize, (url, callback) => {
-      this.notifyFetching(url);
-
       this.fetchHTMLCheerio(url)
         .then(async $ => {
           await this.scrapeSingleProduct($);

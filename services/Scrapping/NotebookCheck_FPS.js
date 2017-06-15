@@ -43,7 +43,7 @@ class NotebookCheck_FPS extends Scrape {
     let gpuIndex = 0;
 
     this.gpuList = this.scrapeIt.scrapeHTML(html, {
-      gpu: {
+      gpus: {
         listItem: '.gpuform #sortierbare_tabelle tr.odd, .gpuform #sortierbare_tabelle tr.even',
         data: {
           index: { how: () => gpuIndex++ },
