@@ -61,11 +61,8 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Debug Filler",
-      "program": "${workspaceRoot}/services/Matcher/index.js",
-      "args": [
-        "-c"
-      ]
+      "name": "Debug Matcher",
+      "program": "${workspaceRoot}/scripts/match.js",
     }
   ]
 }

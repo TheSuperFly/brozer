@@ -1,26 +1,8 @@
-const Scrapping = require('../Scrapping');
-
 const MaterielNet_Laptop_Parser = require('./parser/MaterielNet_Laptop');
 
 const SourceParser = require('./parser');
 
 class Matcher {
-  /**
-   * Scrape all items then match.
-   * @param {Function} callback(data)
-   */
-  scrapeThenMatch(callback) {
-    const scrapping = new Scrapping();
-
-    scrapping.scrapeAll(async (err, data) => {
-      if (err) throw new Error('Scrapping failed');
-
-      const matchedData = await this.match(data);
-
-      callback(matchedData);
-    });
-  }
-
   /**
    * Match products & Performances together.
    * @param {ScrapeAnswer} data 
