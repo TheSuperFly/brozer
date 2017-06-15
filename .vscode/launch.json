@@ -4,12 +4,18 @@
   // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
-
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Run WebServer",
+      "program": "${workspaceRoot}/app/index.js",
+      "restart": true
+    },
     {
       "type": "node",
       "request": "launch",
       "name": "Debug Product Scrapping",
-      "program": "${workspaceRoot}/Scrapping/index.js",
+      "program": "${workspaceRoot}/scripts/scrape.js",
       "args": [
         "-p"
       ]
@@ -18,7 +24,7 @@
       "type": "node",
       "request": "launch",
       "name": "Debug Source Scrapping",
-      "program": "${workspaceRoot}/Scrapping/index.js",
+      "program": "${workspaceRoot}/scripts/scrape.js",
       "args": [
         "-s"
       ]

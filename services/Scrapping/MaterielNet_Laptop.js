@@ -11,11 +11,14 @@ const mapLimit = require('async/mapLimit');
 class MaterielNet_Laptop extends Scrape {
   static MAIN_SPECS_PREFIX() { return 'main-specs' };
 
-  constructor(url) {
-    super();
+  constructor(url, callback) {
+    super(callback);
 
-    this.scrappedProducts = {};
+    this.scrappedProducts = [];
     this.batchSize = 3;
+
+    this.section = '';
+    this.currentTDsList;
 
     this.startScrapping(url);
   }
@@ -30,24 +33,29 @@ class MaterielNet_Laptop extends Scrape {
   async prepareScrapeProduct($) {
     const productLinks = await this.retrieveProductLinks($);
 
-    this.section = '';
-    this.currentTDsList;
-
     mapLimit(productLinks, this.batchSize, (url, callback) => {
       this.notifyFetching(url);
 
       this.fetchHTMLCheerio(url)
-        .then($ => {
-          this.scrapeSingleProduct($);
+        .then(async $ => {
+          await this.scrapeSingleProduct($);
           callback();
         });
     }, () => {
       this.notifyFetchingDone();
+      this.notifyScrappingDone(this.scrappedProducts);
     });
   }
 
-  scrapeSingleProduct(html) {
-    this._preScrapeSingleProduct(html);
+  _preScrapeSingleProduct(html) {
+    const TRs = html('#ProdSectionDesc').find('tr');
+
+    this.getMainSpecs(html);
+    this.getSpecTableContent(TRs);
+  }
+
+  async scrapeSingleProduct(html) {
+    await this._preScrapeSingleProduct(html);
 
     const data = {
       price: this._getSpecificFieldValueFromTRs('price', MaterielNet_Laptop.MAIN_SPECS_PREFIX()),
@@ -112,7 +120,9 @@ class MaterielNet_Laptop extends Scrape {
       recommended_usage: this._getSpecificFieldValueFromTRs('Utilisation recommandée', 'USAGE'),
     };
 
-    this.notifyScrappingDone(data);
+    this.scrappedProducts.push(data);
+
+    return data;
   };
 
   retrieveProductLinks($) {

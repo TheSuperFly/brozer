@@ -4,10 +4,12 @@
 const cli = require('cli');
 
 class Scrape {
-  constructor() {
+  constructor(callback) {
     this.scrapeIt = require('scrape-it');
     this.cheerio = require('cheerio');
     this.fetch = require('node-fetch');
+
+    this.callback = callback;
 
     this.scrapeResult = [];
   }
@@ -33,7 +35,7 @@ class Scrape {
   notifyScrappingDone(data) {
     cli.ok('Scrapping done. Congratz Mr. Robot!');
 
-    this.scrapeResult.push(data);
+    this.callback(data);
   }
 }
 
