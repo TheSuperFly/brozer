@@ -1,9 +1,15 @@
+const Question = require('../schema');
+
 class QuestionModel {
-  static getAllQuestions() {
-    return [
-      'foo', 'bar', 'trottoir'
-    ]
+  static async getAllQuestions() {
+    return await Question.find()
   }  
+
+  static createQuestionFromRequest(body) {
+    return new Question({
+      text: body.text.trim(),
+    });
+  }
 }
 
 module.exports = QuestionModel;

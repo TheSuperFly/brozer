@@ -7,8 +7,15 @@
     <title>Document</title>
 </head>
 <body>
-    <% questions.forEach(question => { %>
-        <div><%= question %></div>
-    <% }) %>
+    <div>
+        <% questions.forEach(question => { %>
+            <div>
+                <a href="/questions/<%= question.id %>"><%= question.text %></a>
+            </div>
+        <% }) %>
+    </div>
+    <br>
+
+    <div><a href="/questions/create">Créer une question</a></div>
 </body>
 </html>
