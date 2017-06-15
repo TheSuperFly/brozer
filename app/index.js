@@ -1,6 +1,14 @@
 const cli = require('cli');
 const express = require('express');
 const app = express();
+const bodyParser = require('body-parser');
+const expressValidator = require('express-validator');
+
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(expressValidator());
+
+app.use(bodyParser.json());
+app.use(expressValidator());
 
 const routes = require('./endpoints');
 

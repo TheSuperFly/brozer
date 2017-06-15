@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const dbURI = 'mongodb://localhost/yours';
 
 mongoose.connect(dbURI); 
+mongoose.Promise = global.Promise;
 
 mongoose.connection.on('connected', function () {  
   cli.ok('Mongoose default connection open to ' + dbURI);

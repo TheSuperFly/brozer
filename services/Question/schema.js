@@ -1,30 +1,93 @@
-// This is a pseudo model written with peudo code and it doesn't work at all
-// Cheers
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-const Question = {
-  text: String('Quel type de jeu préférez-vous?'),
-  priotity: ?Number = 0,
-  condition: {
-    gaming: {
-      $gte: '0.5',
-    },
-    bureautique: {
-      $gte: '0.5',
-    },
-  },
+// In exemple
+// {
+//     text: 'Allez vous bien?',
+//     priority: 5,
+//     conditions: {
+//       gpu: {
+//         gte: 0.6,
+//       },
+//       cpu: {
+//         lte: 0.8,
+//       },
+//     },
+//     answers: [
+//       {
+//         text: 'Oui',
+//         productScoreInfluence: {
+//           storage: 0.2,
+//           weight: 0.2,
+//         }
+//       },
+//       {
+//         text: 'Non',
+//         productScoreInfluence: {
+//           storage: 0.7,
+//           weight: 0.8,
+//         },
+//         questionScoreInfluence: {
+//           storage: 0.7,
+//           weight: 0.8,
+//         },
+//       },
+//     ]
+//   }
+
+const QuestionSchema = new Schema({
+  text: String,
+  priority: { type: String, default: 0 },
+  conditions: getConditions(),
   answers: [
     {
-      text: String('Call Of Duty'),
-      productScoreInfluence: {
-        cpu: '+0.1',
-        gpu: '-0.01',
-        storage: '0.01',
-      },
-      questionScoreInfluence: {
-        gaming: '-0.5',
-        bureautique: '0.5',
-      },
-      nextQuestion: [2]
+      text: String,
+      productScoreInfluence: getTypesItems(),
+      questionScoreInfluence: getTypesItems(),
+      nextQuestion: Array
     }
   ]
-};
+});
+
+function getItems() {
+  return [
+    'gpu',
+    'cpu',
+    'ram',
+    'autonomy',
+    'storage',
+    'storageType',
+    'weight',
+  ]
+}
+
+function getTypesItems() {
+  const result = {};
+
+  getItems().forEach(item => {
+    result[item] = Number;
+  });
+
+  return result;
+}
+
+function getConditions() {
+  const result = {};
+
+  getItems().forEach(item => {
+    result[item] = getConditionContent()
+  });
+
+  return result;
+}
+
+function getConditionContent() {
+  return {
+    gte: Number,
+    lte: Number,
+  }
+}
+
+const Question = mongoose.model('Question', QuestionSchema);
+
+module.exports = Question;
