@@ -1,10 +1,14 @@
 const Scrapping = require('../Scrapping');
 
 const MaterielNet_Laptop_Parser = require('./parser/MaterielNet_Laptop');
-const NotebookCheck_FPS_Parser = require('./parser/NotebookCheck_FPS');
+
 const SourceParser = require('./parser');
 
 class Matcher {
+  /**
+   * Scrape all items then match.
+   * @param {Function} callback(data)
+   */
   scrapeThenMatch(callback) {
     const scrapping = new Scrapping();
 
@@ -17,6 +21,10 @@ class Matcher {
     });
   }
 
+  /**
+   * Match products & Performances together.
+   * @param {ScrapeAnswer} data 
+   */
   async match(data) {
     const allSources = new SourceParser(data);
 
@@ -50,11 +58,5 @@ class Matcher {
     });
   }
 }
-
-const matcher = new Matcher();
-const matchedData = matcher.scrapeThenMatch(data => {
-  // Feed the Node Parser with data.
-  console.log(data);
-});
 
 module.exports = Matcher;
