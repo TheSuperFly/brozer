@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 
-router.get('/view', (req, res) => {
-  res.render('pages/about')
-});
+const QuestionHandler = require('./handler');
+
+router.get('/', QuestionHandler.getQuestions);
 
 module.exports = router;
