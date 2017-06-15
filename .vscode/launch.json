@@ -14,6 +14,12 @@
     {
       "type": "node",
       "request": "launch",
+      "name": "Debug Scrapping",
+      "program": "${workspaceRoot}/scripts/scrape.js"
+    },
+    {
+      "type": "node",
+      "request": "launch",
       "name": "Debug Product Scrapping",
       "program": "${workspaceRoot}/scripts/scrape.js",
       "args": [
@@ -33,7 +39,7 @@
       "type": "node",
       "request": "launch",
       "name": "Debug GPU Specs Scrapping",
-      "program": "${workspaceRoot}/Scrapping/index.js",
+      "program": "${workspaceRoot}/scripts/scrape.js",
       "args": [
         "-g"
       ]
@@ -42,7 +48,21 @@
       "type": "node",
       "request": "launch",
       "name": "Debug CPU Specs Scrapping",
-      "program": "${workspaceRoot}/Scrapping/index.js",
+      "program": "${workspaceRoot}/scripts/scrape.js",
+      "args": [
+        "-c"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "----"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Filler",
+      "program": "${workspaceRoot}/services/Matcher/index.js",
       "args": [
         "-c"
       ]
