@@ -13,6 +13,7 @@
     "mongoose": "^4.10.6",
     "node-fetch": "^1.7.1",
     "scrape-it": "^3.3.2",
+    "string-similarity": "^1.2.0",
     "strman": "^2.0.0"
   },
   "devDependencies": {

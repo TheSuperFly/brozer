@@ -1,8 +1,8 @@
 const Scrape = require('./class/Scrape');
 
 class CPU_Benchmark extends Scrape {
-  constructor(url) {
-    super();
+  constructor(url, callback) {
+    super(callback);
 
     this.fetchHTMLCheerio(url)
       .then($ => this.scrape($));
