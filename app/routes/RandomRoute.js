@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 
-router.get('/', (req, res) => {
-  res.send({ kikoo: true });
+router.get('/view', (req, res) => {
+  res.render('pages/about')
 });
 
 module.exports = router;

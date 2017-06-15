@@ -2,9 +2,11 @@ const cli = require('cli');
 const express = require('express');
 const app = express();
 
+const routes = require('./routes');
+
 require('./db.js');
 
-const routes = require('./routes');
+app.set('view engine', 'ejs');
 
 app.use(routes);
 

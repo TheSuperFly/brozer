@@ -1,3 +1,6 @@
+// This is a pseudo model written with peudo code and it doesn't work at all
+// Cheers
+
 const Question = {
   text: String('Quel type de jeu préférez-vous?'),
   priotity: ?Number = 0,
