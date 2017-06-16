@@ -6,12 +6,11 @@
 const Scrape = require('./class/Scrape');
 const sanitizer = require('./utils/SanitizerUtil');
 const strman = require('strman');
-const mapLimit = require('async/mapLimit');
 
 class MaterielNet_Laptop extends Scrape {
   static MAIN_SPECS_PREFIX() { return 'main-specs' };
 
-  constructor(url, callback) {
+  constructor(url, callback, links) {
     super(callback);
 
     this.scrappedProducts = [];
@@ -20,14 +19,22 @@ class MaterielNet_Laptop extends Scrape {
     this.section = '';
     this.currentTDsList;
 
-    this.startScrapping(url);
+    this.startScrapping(url, links);
   }
 
-  startScrapping(url) {
-    const $ = this.fetchHTMLCheerio(url)
-      .then($ => {
-        this.prepareScrapeProduct($);
-      });
+  startScrapping(url, links) {
+    if ('undefined' === typeof links || 0 === links.length) {
+      const $ = this.fetchHTMLCheerio(url)
+        .then($ => {
+          this.prepareScrapeProduct($);
+        });
+    } else {
+      this.scrapeFromGivenListProducts(links)
+    }
+  }
+
+  async scrapeFromGivenListProducts(links) {
+    await this.scrapeProducts(links, this.scrapeSingleProduct, this);
   }
 
   async prepareScrapeProduct($) {
@@ -45,16 +52,7 @@ class MaterielNet_Laptop extends Scrape {
      */
     const productLinks = await this.retrieveProductLinks($).slice(0, 10);
 
-    mapLimit(productLinks, this.batchSize, (url, callback) => {
-      this.fetchHTMLCheerio(url)
-        .then(async $ => {
-          await this.scrapeSingleProduct($);
-          callback();
-        });
-    }, () => {
-      this.notifyFetchingDone();
-      this.notifyScrappingDone(this.scrappedProducts);
-    });
+    await this.scrapeProducts(productLinks, this.scrapeSingleProduct, this);
   }
 
   _preScrapeSingleProduct(html) {

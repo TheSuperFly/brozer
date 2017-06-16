@@ -6,7 +6,7 @@ const data = {
 }
 
 const product = {
-  MaterielNet_Laptop: 'http://localhost:8888/yours/sources/localhost/index.html',
+  MaterielNet_Laptop: 'http://zachary.pm/mnt/localhost/index.html',
 }
 
 module.exports = { data, product };

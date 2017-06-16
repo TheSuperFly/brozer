@@ -19,7 +19,14 @@ const Schema = mongoose.Schema;
 //         productScoreInfluence: {
 //           storage: 0.2,
 //           weight: 0.2,
-//         }
+//         },
+//         questionScoreInfluence: {
+//           storage: 0.7,
+//           weight: 0.8,
+//         },
+//         nextQuestions: [
+//           1, 2, 4
+//         ]
 //       },
 //       {
 //         text: 'Non',
@@ -31,6 +38,9 @@ const Schema = mongoose.Schema;
 //           storage: 0.7,
 //           weight: 0.8,
 //         },
+//         nextQuestions: [
+//           1, 2, 4
+//         ]
 //       },
 //     ]
 //   }
