@@ -62,7 +62,18 @@
       "type": "node",
       "request": "launch",
       "name": "Debug Matcher",
-      "program": "${workspaceRoot}/scripts/match.js",
+      "program": "${workspaceRoot}/scripts/match.js"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "----"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Item Processor",
+      "program": "${workspaceRoot}/scripts/itemProcessor.js"
     }
   ]
 }
