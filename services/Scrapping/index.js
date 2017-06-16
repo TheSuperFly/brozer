@@ -41,6 +41,16 @@ class ScrapeDispatcher {
     return parallelLimit(this.Products, this.scrapeBatchSize, callback);
   }
 
+  scrapeProductsFromLinks(links, callback) {
+    return parallelLimit({
+      MaterielNet_Laptop: callback => new MaterielNet_Laptop(
+        endpoint.product.MaterielNet_Laptop,
+        data => callback(null, { type: ScrapeDispatcher.PRODUCT(), data }),
+        links
+      ),
+    }, this.scrapeBatchSize, callback);
+  }
+
   scrapeSources(callback) {
     return parallelLimit(this.Sources, this.scrapeBatchSize, callback);
   }

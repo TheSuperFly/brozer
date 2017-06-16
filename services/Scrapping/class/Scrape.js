@@ -2,6 +2,7 @@
 // X Trier les informations reçues
 // Utiliser un User-Agent custom
 const cli = require('cli');
+const mapLimit = require('async/mapLimit');
 
 class Scrape {
   constructor(callback) {
@@ -21,6 +22,19 @@ class Scrape {
 
     return await response.text().then(res => {
       return this.cheerio.load(res);
+    });
+  }
+
+  async scrapeProducts(linksList, singleCallback, context) {
+    mapLimit(linksList, this.batchSize, (url, callback) => {
+      this.fetchHTMLCheerio(url)
+        .then(async $ => {
+          singleCallback.bind(context, $)();
+          callback();
+        });
+    }, () => {
+      this.notifyFetchingDone();
+      this.notifyScrappingDone(this.scrappedProducts);
     });
   }
 
