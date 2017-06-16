@@ -12,6 +12,7 @@ class NotebookCheck_FPS extends Scrape {
     this.gpuList = [];
     this.fpsList = [];
 
+    this.qualityListIterator = 0;
     this.gameStack = [];
 
     this.classNameToAttribute = {
@@ -117,9 +118,11 @@ class NotebookCheck_FPS extends Scrape {
     const attribute = this._translateClassToAttribute(currentSquareClass);
     const game = this.gameStack[0];
     const fps = this.cheerio(element).find('div > span > span').text();
+    const quality = this.qualityList[this.qualityListIterator++];
 
     if (this.cheerio(element).is(':last-child')) {
       this._reloadGameStack();
+      this.qualityListIterator = 0;
     }
 
     return {
@@ -127,6 +130,7 @@ class NotebookCheck_FPS extends Scrape {
       performances: {
         fps,
         attribute,
+        quality,
       }
     };
   }
