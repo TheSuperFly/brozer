@@ -15,16 +15,17 @@ ManualProductFillingHandler.addProducts = async (req, res) => {
 
   links = links.filter(link => {
     if (-1 !== link.split('/').indexOf("www.materiel.net")) {
-      console.log('plop');
       return link;
     }
   });
 
   const Scrape = new ScrapeDispatcher();
-  Scrape.scrapeProductsFromLinks(links);
+  Scrape.scrapeProductsFromLinks(links, (err, result) => {
+    if (err) throw new Error(err);
 
-
-  res.redirect('/debug');
+    
+    res.send(result);
+  });
 }
 
 module.exports = ManualProductFillingHandler;

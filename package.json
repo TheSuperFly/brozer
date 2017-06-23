@@ -22,6 +22,7 @@
     "nodemon": "^1.11.0"
   },
   "scripts": {
-    "start-dev": "nodemon ./app/index.js localhost 7777"
+    "start": "node ./app/index.js",
+    "dev": "nodemon ./app/index.js"
   }
 }

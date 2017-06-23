@@ -48,6 +48,19 @@ class MaterielNet_Laptop extends Scrape {
   }
 
   async prepareScrapeProduct($) {
+    /*
+     *  ________________________________________
+     * / For a proof of concept, we only scrape \
+     * \ 3 products.                            /
+     *  ----------------------------------------
+     * \
+     *  \   \
+     *   \ /\
+     *   ( )
+     * .( o ).
+     * 
+     * https://github.com/TheSuperFly/brozer/issues/11
+     */
     const productLinks = await this.retrieveProductLinks($).slice(0, 3);
 
     await mapLimit(productLinks, this.batchSize, (url, callback) => {
