@@ -11,12 +11,14 @@ class ScrapeDispatcher {
   static PRODUCT() { return 'PRODUCT' };
   static SOURCE() { return 'SOURCE' };
 
-  constructor() {
+  constructor(sourceMaterielNet = false) {
     this.scrapeBatchSize = 3;
 
     this.Products = {
       MaterielNet_Laptop: callback => new MaterielNet_Laptop(
-        endpoint.product.MaterielNet_Laptop,
+        sourceMaterielNet 
+          ? endpoint.product.MaterielNet_Laptop
+          : endpoint.product.MaterielNet_Laptop_Local,
         data => callback(null, { type: ScrapeDispatcher.PRODUCT(), data })
       ),
     };

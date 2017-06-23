@@ -15,7 +15,7 @@ class MaterielNet_Laptop extends Scrape {
     super(callback);
 
     this.scrappedProducts = [];
-    this.batchSize = 3;
+    this.batchSize = 1;
 
     this.section = '';
     this.currentTDsList;
@@ -137,14 +137,18 @@ class MaterielNet_Laptop extends Scrape {
 
     this.scrappedProducts.push(data);
 
-    return data;
+    return this.scrappedProducts;
   };
 
   retrieveProductLinks($) {
     let links = [];
 
     $('.Desc td > a').each((index, el) => {
-      links.push($(el).attr('href'));
+      const href = $(el).attr('href');
+      if (href.charAt(0) === '/')
+        links.push(`http://materiel.net${href}`);
+      else
+        links.push(href);
     });
 
     return links;
