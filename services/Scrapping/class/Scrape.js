@@ -1,8 +1,5 @@
-// X Aller récupérer le contenu de la page mise en paramètre
-// X Trier les informations reçues
-// Utiliser un User-Agent custom
 const cli = require('cli');
-const mapLimit = require('async/mapLimit');
+
 
 class Scrape {
   constructor(callback) {
@@ -25,19 +22,6 @@ class Scrape {
     });
   }
 
-  async scrapeProducts(linksList, singleCallback, context) {
-    mapLimit(linksList, this.batchSize, (url, callback) => {
-      this.fetchHTMLCheerio(url)
-        .then(async $ => {
-          singleCallback.bind(context, $)();
-          callback();
-        });
-    }, () => {
-      this.notifyFetchingDone();
-      this.notifyScrappingDone(this.scrappedProducts);
-    });
-  }
-
   notifyFetching(url) {
     cli.info(`Fetching ${url}`);
   }
@@ -47,7 +31,7 @@ class Scrape {
   }
 
   notifyScrappingDone(data) {
-    cli.ok('Scrapping done. Congratz Mr. Robot!');
+    cli.ok('Scrapping done.');
 
     this.callback(data);
   }

@@ -3,6 +3,7 @@
 // Trier les informations reçues
 // (Optionnal) Les stocker en JSON dans /data
 
+const mapLimit = require('async/mapLimit');
 const Scrape = require('./class/Scrape');
 const sanitizer = require('./utils/SanitizerUtil');
 const strman = require('strman');
@@ -14,7 +15,7 @@ class MaterielNet_Laptop extends Scrape {
     super(callback);
 
     this.scrappedProducts = [];
-    this.batchSize = 3;
+    this.batchSize = 1;
 
     this.section = '';
     this.currentTDsList;
@@ -34,25 +35,44 @@ class MaterielNet_Laptop extends Scrape {
   }
 
   async scrapeFromGivenListProducts(links) {
-    await this.scrapeProducts(links, this.scrapeSingleProduct, this);
+    await mapLimit(links, this.batchSize, (url, callback) => {
+      this.fetchHTMLCheerio(url)
+        .then(async $ => {
+          await this.scrapeSingleProduct($);
+          callback();
+        });
+    }, () => {
+      this.notifyFetchingDone();
+      this.notifyScrappingDone(this.scrappedProducts);
+    });
   }
 
   async prepareScrapeProduct($) {
-    /**
-     *  _________________________________________ 
-     *  / WATCH OUT. I used this to avoid waiting \
-     *  \ so long for data.                       /
-     *   ----------------------------------------- 
-     *         \   ^__^
-     *          \  (oo)\_______
-     *             (__)\       )\/\
-     *                 ||----w |
-     *                 ||     ||
-     *   https://github.com/TheSuperFly/yours/issues/11
+    /*
+     *  ________________________________________
+     * / For a proof of concept, we only scrape \
+     * \ 3 products.                            /
+     *  ----------------------------------------
+     * \
+     *  \   \
+     *   \ /\
+     *   ( )
+     * .( o ).
+     * 
+     * https://github.com/TheSuperFly/brozer/issues/11
      */
-    const productLinks = await this.retrieveProductLinks($).slice(0, 10);
+    const productLinks = await this.retrieveProductLinks($).slice(0, 3);
 
-    await this.scrapeProducts(productLinks, this.scrapeSingleProduct, this);
+    await mapLimit(productLinks, this.batchSize, (url, callback) => {
+      this.fetchHTMLCheerio(url)
+        .then(async $ => {
+          await this.scrapeSingleProduct($);
+          callback();
+        });
+    }, () => {
+      this.notifyFetchingDone();
+      this.notifyScrappingDone(this.scrappedProducts);
+    });
   }
 
   _preScrapeSingleProduct(html) {
@@ -130,14 +150,18 @@ class MaterielNet_Laptop extends Scrape {
 
     this.scrappedProducts.push(data);
 
-    return data;
+    return this.scrappedProducts;
   };
 
   retrieveProductLinks($) {
     let links = [];
 
     $('.Desc td > a').each((index, el) => {
-      links.push($(el).attr('href'));
+      const href = $(el).attr('href');
+      if (href.charAt(0) === '/')
+        links.push(`http://materiel.net${href}`);
+      else
+        links.push(href);
     });
 
     return links;

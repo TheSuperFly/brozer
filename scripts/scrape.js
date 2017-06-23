@@ -1,5 +1,6 @@
 #!/bin/node
 const cli = require('cli');
+const util = require('util');
 const ScrapeDispatcher = require('../services/Scrapping');
 
 cli.parse({
@@ -38,5 +39,8 @@ if (args.indexOf('-c') !== -1) {
 if (!args.length) {
   const scrape = new ScrapeDispatcher();
 
-  scrape.scrapeAll();
+  scrape.scrapeAll((err, data) => {
+    cli.info('Below all scrapped datas.');
+    console.log(util.inspect(data, { colors: true, depth: null }));
+  });
 }
